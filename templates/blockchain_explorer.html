@@ -1,0 +1,110 @@
+{% extends "base.html" %}
+{% block title %}Blockchain Explorer - E-Voting System{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="page-header">
+        <h1><i class="fas fa-cubes"></i> Blockchain Explorer</h1>
+        <p>Explore the SHA-512 secured blockchain</p>
+    </div>
+
+    <div class="blockchain-stats">
+        <div class="bstat-card">
+            <i class="fas fa-cubes"></i>
+            <span class="bstat-value">{{ stats.total_blocks }}</span>
+            <span class="bstat-label">Blocks</span>
+        </div>
+        <div class="bstat-card">
+            <i class="fas fa-vote-yea"></i>
+            <span class="bstat-value">{{ stats.total_votes }}</span>
+            <span class="bstat-label">Votes</span>
+        </div>
+        <div class="bstat-card">
+            <i class="fas fa-hammer"></i>
+            <span class="bstat-value">{{ stats.difficulty }}</span>
+            <span class="bstat-label">Difficulty</span>
+        </div>
+        <div class="bstat-card">
+            <i class="fas fa-shield-alt"></i>
+            <span class="bstat-value">SHA-512</span>
+            <span class="bstat-label">Algorithm</span>
+        </div>
+        <div class="bstat-card {% if validation.is_valid %}valid{% else %}invalid{% endif %}">
+            <i class="fas {% if validation.is_valid %}fa-check-circle{% else %}fa-times-circle{% endif %}"></i>
+            <span class="bstat-value">{{ "Valid" if validation.is_valid else "Invalid" }}</span>
+            <span class="bstat-label">Chain Status</span>
+        </div>
+    </div>
+
+    <div class="validation-report">
+        <h3><i class="fas fa-clipboard-check"></i> Validation Report</h3>
+        <p>Blocks Checked: {{ validation.blocks_checked }} | Total: {{ validation.total_blocks }}</p>
+        {% if validation.errors %}
+        <div class="validation-errors">
+            {% for error in validation.errors %}
+            <div class="error-item"><i class="fas fa-exclamation-triangle"></i> {{ error }}</div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <p class="validation-ok"><i class="fas fa-check-circle"></i> All blocks validated. SHA-512 chain integrity confirmed.</p>
+        {% endif %}
+    </div>
+
+    <div class="blockchain-chain">
+        <h3><i class="fas fa-link"></i> Block Chain</h3>
+        {% for block in chain|reverse %}
+        <div class="block-card {% if loop.last %}genesis{% endif %}">
+            <div class="block-header">
+                <span class="block-index">Block #{{ block.index }}</span>
+                {% if loop.last %}
+                <span class="block-badge genesis">Genesis Block</span>
+                {% else %}
+                <span class="block-badge">Mined</span>
+                {% endif %}
+                <span class="block-nonce">Nonce: {{ block.nonce }}</span>
+            </div>
+
+            <div class="block-body">
+                <div class="block-field">
+                    <span class="field-label"><i class="fas fa-fingerprint"></i> Hash (SHA-512):</span>
+                    <span class="field-value hash-text">{{ block.hash }}</span>
+                </div>
+                <div class="block-field">
+                    <span class="field-label"><i class="fas fa-arrow-left"></i> Previous Hash:</span>
+                    <span class="field-value hash-text">{{ block.previous_hash }}</span>
+                </div>
+                <div class="block-field">
+                    <span class="field-label"><i class="fas fa-clock"></i> Timestamp:</span>
+                    <span class="field-value">{{ block.timestamp }}</span>
+                </div>
+
+                <div class="block-transactions">
+                    <h4><i class="fas fa-exchange-alt"></i> Transactions ({{ block.transactions|length }})</h4>
+                    {% for tx in block.transactions %}
+                    <div class="transaction-item">
+                        {% if tx.type == 'genesis' %}
+                        <span class="tx-type genesis"><i class="fas fa-star"></i> {{ tx.message }}</span>
+                        {% elif tx.type == 'vote' %}
+                        <div class="tx-vote">
+                            <span class="tx-type vote"><i class="fas fa-vote-yea"></i> Vote</span>
+                            <span><strong>Candidate:</strong> {{ tx.candidate }}</span>
+                            <span><strong>Election:</strong> {{ tx.election_id }}</span>
+                            <span class="tx-hash"><strong>Vote Hash:</strong> {{ tx.vote_hash[:48] }}...</span>
+                        </div>
+                        {% endif %}
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        {% if not loop.last %}
+        <div class="chain-link">
+            <i class="fas fa-link"></i>
+            <span>SHA-512 Linked</span>
+        </div>
+        {% endif %}
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

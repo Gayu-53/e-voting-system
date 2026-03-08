@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+{% block title %}Login - E-Voting System{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="auth-container">
+        <div class="auth-card">
+            <div class="auth-header">
+                <i class="fas fa-sign-in-alt"></i>
+                <h2>Login</h2>
+                <p>Access the decentralized voting system</p>
+            </div>
+
+            <div class="login-toggle">
+                <button class="toggle-btn active" data-type="voter" onclick="switchLoginType('voter')">
+                    <i class="fas fa-user"></i> Voter
+                </button>
+                <button class="toggle-btn" data-type="admin" onclick="switchLoginType('admin')">
+                    <i class="fas fa-user-shield"></i> Admin
+                </button>
+            </div>
+
+            <form method="POST" action="{{ url_for('login') }}" class="auth-form">
+                <input type="hidden" id="login_type" name="login_type" value="voter">
+
+                <div class="form-group">
+                    <label for="user_id"><i class="fas fa-id-badge"></i> <span id="id_label">Voter ID</span></label>
+                    <input type="text" id="user_id" name="user_id" placeholder="Enter your ID" required>
+                </div>
+                <div class="form-group">
+                    <label for="password"><i class="fas fa-lock"></i> Password</label>
+                    <input type="password" id="password" name="password" placeholder="Enter your password" required>
+                </div>
+                <button type="submit" class="btn btn-primary btn-block">
+                    <i class="fas fa-sign-in-alt"></i> Login
+                </button>
+            </form>
+
+            <div class="auth-footer">
+                <p>Don't have an account? <a href="{{ url_for('register') }}">Register here</a></p>
+            </div>
+
+            <div class="security-note">
+                <h4><i class="fas fa-info-circle"></i> Test Credentials</h4>
+                <p><strong>Voter:</strong> ID: VOT001 | Password: passVOT001</p>
+                <p><strong>Admin:</strong> Username: admin | Password: admin123</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function switchLoginType(type) {
+    document.getElementById('login_type').value = type;
+    document.querySelectorAll('.toggle-btn').forEach(function(btn) {
+        btn.classList.remove('active');
+    });
+    document.querySelector('[data-type="' + type + '"]').classList.add('active');
+    if (type === 'admin') {
+        document.getElementById('id_label').textContent = 'Admin Username';
+        document.getElementById('user_id').placeholder = 'Enter admin username';
+    } else {
+        document.getElementById('id_label').textContent = 'Voter ID';
+        document.getElementById('user_id').placeholder = 'Enter your Voter ID';
+    }
+}
+</script>
+{% endblock %}

@@ -1,0 +1,140 @@
+{% extends "base.html" %}
+{% block title %}Admin Dashboard - E-Voting System{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="page-header">
+        <h1><i class="fas fa-user-shield"></i> Admin Dashboard</h1>
+        <p>Manage elections, voters, and monitor blockchain</p>
+    </div>
+
+    <div class="admin-stats">
+        <div class="astat-card">
+            <div class="astat-icon"><i class="fas fa-cubes"></i></div>
+            <div class="astat-info">
+                <span class="astat-value">{{ stats.total_blocks }}</span>
+                <span class="astat-label">Blocks</span>
+            </div>
+        </div>
+        <div class="astat-card">
+            <div class="astat-icon"><i class="fas fa-vote-yea"></i></div>
+            <div class="astat-info">
+                <span class="astat-value">{{ stats.total_votes }}</span>
+                <span class="astat-label">Total Votes</span>
+            </div>
+        </div>
+        <div class="astat-card">
+            <div class="astat-icon"><i class="fas fa-users"></i></div>
+            <div class="astat-info">
+                <span class="astat-value">{{ voters|length }}</span>
+                <span class="astat-label">Voters</span>
+            </div>
+        </div>
+        <div class="astat-card">
+            <div class="astat-icon"><i class="fas fa-calendar"></i></div>
+            <div class="astat-info">
+                <span class="astat-value">{{ elections|length }}</span>
+                <span class="astat-label">Elections</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="admin-section">
+        <h2><i class="fas fa-shield-alt"></i> Blockchain Integrity</h2>
+        <div class="integrity-status {% if validation.is_valid %}valid{% else %}invalid{% endif %}">
+            <i class="fas {% if validation.is_valid %}fa-check-circle{% else %}fa-times-circle{% endif %}"></i>
+            <span>Chain is {{ "VALID" if validation.is_valid else "INVALID" }}</span>
+            <span class="integrity-detail">{{ validation.blocks_checked }} blocks verified using SHA-512</span>
+        </div>
+    </div>
+
+    <div class="admin-section">
+        <h2><i class="fas fa-calendar-check"></i> Elections</h2>
+        <div class="admin-table-wrapper">
+            <table class="admin-table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Title</th>
+                        <th>Candidates</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for election in elections %}
+                    <tr>
+                        <td><code>{{ election.id }}</code></td>
+                        <td>{{ election.title }}</td>
+                        <td>{{ election.candidates|length }}</td>
+                        <td>
+                            <span class="status-badge {% if election.is_active %}active{% else %}inactive{% endif %}">
+                                {{ "Active" if election.is_active else "Inactive" }}
+                            </span>
+                        </td>
+                        <td>
+                            <form method="POST" action="{{ url_for('toggle_election', election_id=election.id) }}" style="display:inline;">
+                                <button type="submit" class="btn btn-sm {% if election.is_active %}btn-danger{% else %}btn-success{% endif %}">
+                                    {{ "Deactivate" if election.is_active else "Activate" }}
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="admin-section">
+        <h2><i class="fas fa-users"></i> Registered Voters</h2>
+        <div class="admin-table-wrapper">
+            <table class="admin-table">
+                <thead>
+                    <tr>
+                        <th>Voter ID</th>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>Verified</th>
+                        <th>Voted</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for voter in voters %}
+                    <tr>
+                        <td><code>{{ voter.voter_id }}</code></td>
+                        <td>{{ voter.name }}</td>
+                        <td>{{ voter.email }}</td>
+                        <td>
+                            <span class="status-badge {% if voter.is_verified %}active{% else %}inactive{% endif %}">
+                                {{ "Yes" if voter.is_verified else "No" }}
+                            </span>
+                        </td>
+                        <td>
+                            {% set has_any_vote = [] %}
+                            {% for eid, voted in voter.has_voted.items() %}
+                                {% if voted %}
+                                <span class="status-badge active">{{ eid }}</span>
+                                {% endif %}
+                            {% endfor %}
+                            {% if not voter.has_voted %}
+                            <span class="status-badge inactive">No</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="admin-actions">
+        <a href="{{ url_for('blockchain_explorer') }}" class="btn btn-primary">
+            <i class="fas fa-cubes"></i> View Blockchain
+        </a>
+        <a href="{{ url_for('results') }}" class="btn btn-secondary">
+            <i class="fas fa-chart-bar"></i> View Results
+        </a>
+    </div>
+</div>
+{% endblock %}

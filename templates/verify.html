@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+{% block title %}Verify Vote - E-Voting System{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="page-header">
+        <h1><i class="fas fa-search"></i> Verify Your Vote</h1>
+        <p>Enter your receipt hash to verify your vote on the blockchain</p>
+    </div>
+
+    <div class="verify-container">
+        <form method="POST" action="{{ url_for('verify') }}" class="verify-form">
+            <div class="form-group">
+                <label for="receipt_hash"><i class="fas fa-receipt"></i> Receipt Hash (SHA-512)</label>
+                <textarea id="receipt_hash" name="receipt_hash" rows="3" placeholder="Paste your SHA-512 receipt hash here..." required>{{ receipt or '' }}</textarea>
+            </div>
+            <button type="submit" class="btn btn-primary btn-block">
+                <i class="fas fa-search"></i> Verify Vote
+            </button>
+        </form>
+
+        {% if result %}
+        <div class="verify-result">
+            {% if result.found %}
+            <div class="verify-success">
+                <div class="verify-icon"><i class="fas fa-check-circle"></i></div>
+                <h2>Vote Verified Successfully!</h2>
+                <p>Your vote has been found on the blockchain and is secured by SHA-512.</p>
+                <div class="verify-details">
+                    <div class="detail-row">
+                        <span class="detail-label"><i class="fas fa-user"></i> Candidate:</span>
+                        <span class="detail-value">{{ result.candidate }}</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label"><i class="fas fa-cube"></i> Block Number:</span>
+                        <span class="detail-value">#{{ result.block_index }}</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label"><i class="fas fa-fingerprint"></i> Block Hash:</span>
+                        <span class="detail-value hash-text">{{ result.block_hash[:64] }}...</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label"><i class="fas fa-hashtag"></i> Vote Hash:</span>
+                        <span class="detail-value hash-text">{{ result.vote_hash[:64] }}...</span>
+                    </div>
+                </div>
+            </div>
+            {% else %}
+            <div class="verify-failed">
+                <div class="verify-icon"><i class="fas fa-times-circle"></i></div>
+                <h2>Vote Not Found</h2>
+                <p>No vote matching this receipt hash was found. Please check and try again.</p>
+            </div>
+            {% endif %}
+        </div>
+        {% endif %}
+
+        <div class="verify-info">
+            <h3><i class="fas fa-info-circle"></i> How Verification Works</h3>
+            <ol>
+                <li>When you cast a vote, a unique SHA-512 receipt hash is generated.</li>
+                <li>This hash is linked to your vote on the blockchain.</li>
+                <li>Enter the receipt hash to find and verify your vote.</li>
+                <li>The blockchain ensures your vote has not been tampered with.</li>
+            </ol>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,128 @@
+{% extends "base.html" %}
+{% block title %}Home - Decentralized E-Voting System{% endblock %}
+
+{% block content %}
+<section class="hero">
+    <div class="hero-content">
+        <h1><i class="fas fa-vote-yea"></i> Decentralized E-Voting System</h1>
+        <p class="hero-subtitle">Secure, Transparent, and Tamper-Proof Elections powered by <strong>SHA-512 Blockchain</strong></p>
+        <div class="hero-actions">
+            {% if current_user.is_authenticated %}
+                <a href="{{ url_for('vote') }}" class="btn btn-primary btn-lg"><i class="fas fa-check-circle"></i> Cast Your Vote</a>
+            {% else %}
+                <a href="{{ url_for('register') }}" class="btn btn-primary btn-lg"><i class="fas fa-user-plus"></i> Register to Vote</a>
+                <a href="{{ url_for('login') }}" class="btn btn-outline btn-lg"><i class="fas fa-sign-in-alt"></i> Login</a>
+            {% endif %}
+            <a href="{{ url_for('results') }}" class="btn btn-outline btn-lg"><i class="fas fa-chart-bar"></i> View Results</a>
+        </div>
+    </div>
+</section>
+
+<section class="section">
+    <div class="container">
+        <h2 class="section-title"><i class="fas fa-cogs"></i> How SHA-512 Blockchain Voting Works</h2>
+        <div class="steps-grid">
+            <div class="step-card">
+                <div class="step-number">1</div>
+                <div class="step-icon"><i class="fas fa-user-plus"></i></div>
+                <h3>Register</h3>
+                <p>Create your voter account. Your identity is hashed using SHA-512 for security.</p>
+            </div>
+            <div class="step-card">
+                <div class="step-number">2</div>
+                <div class="step-icon"><i class="fas fa-id-card"></i></div>
+                <h3>Authenticate</h3>
+                <p>Login with your credentials. SHA-512 verifies your identity without exposing passwords.</p>
+            </div>
+            <div class="step-card">
+                <div class="step-number">3</div>
+                <div class="step-icon"><i class="fas fa-check-circle"></i></div>
+                <h3>Cast Vote</h3>
+                <p>Your vote is encrypted and added to the blockchain with a unique SHA-512 hash.</p>
+            </div>
+            <div class="step-card">
+                <div class="step-number">4</div>
+                <div class="step-icon"><i class="fas fa-cubes"></i></div>
+                <h3>Block Mining</h3>
+                <p>Proof-of-Work mining secures your vote in an immutable block using SHA-512.</p>
+            </div>
+            <div class="step-card">
+                <div class="step-number">5</div>
+                <div class="step-icon"><i class="fas fa-receipt"></i></div>
+                <h3>Get Receipt</h3>
+                <p>Receive a SHA-512 receipt hash to verify your vote was recorded correctly.</p>
+            </div>
+            <div class="step-card">
+                <div class="step-number">6</div>
+                <div class="step-icon"><i class="fas fa-search"></i></div>
+                <h3>Verify</h3>
+                <p>Anyone can verify the blockchain integrity and individual votes.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="section section-dark">
+    <div class="container">
+        <h2 class="section-title"><i class="fas fa-chart-pie"></i> Blockchain Statistics</h2>
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-icon"><i class="fas fa-cubes"></i></div>
+                <div class="stat-value">{{ stats.total_blocks }}</div>
+                <div class="stat-label">Total Blocks</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon"><i class="fas fa-vote-yea"></i></div>
+                <div class="stat-value">{{ stats.total_votes }}</div>
+                <div class="stat-label">Total Votes Cast</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon"><i class="fas fa-hammer"></i></div>
+                <div class="stat-value">{{ stats.difficulty }}</div>
+                <div class="stat-label">Mining Difficulty</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon"><i class="fas fa-shield-alt"></i></div>
+                <div class="stat-value">{{ stats.hash_algorithm }}</div>
+                <div class="stat-label">Hash Algorithm</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">
+                    {% if stats.chain_valid %}
+                        <i class="fas fa-check-circle" style="color: #00b894"></i>
+                    {% else %}
+                        <i class="fas fa-times-circle" style="color: #d63031"></i>
+                    {% endif %}
+                </div>
+                <div class="stat-value">{{ "Valid" if stats.chain_valid else "Invalid" }}</div>
+                <div class="stat-label">Chain Integrity</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+{% if elections %}
+<section class="section">
+    <div class="container">
+        <h2 class="section-title"><i class="fas fa-calendar-check"></i> Active Elections</h2>
+        <div class="election-grid">
+            {% for election in elections %}
+            <div class="election-card">
+                <h3>{{ election.title }}</h3>
+                <p>{{ election.description }}</p>
+                <div class="election-meta">
+                    <span><i class="fas fa-users"></i> {{ election.candidates|length }} Candidates</span>
+                    <span class="election-status active"><i class="fas fa-circle"></i> Active</span>
+                </div>
+                {% if current_user.is_authenticated and current_user.user_type == 'voter' %}
+                    <a href="{{ url_for('vote') }}" class="btn btn-primary btn-block">Vote Now</a>
+                {% else %}
+                    <a href="{{ url_for('login') }}" class="btn btn-primary btn-block">Login to Vote</a>
+                {% endif %}
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endif %}
+{% endblock %}

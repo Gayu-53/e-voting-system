@@ -1,0 +1,91 @@
+{% extends "base.html" %}
+{% block title %}Vote - E-Voting System{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="page-header">
+        <h1><i class="fas fa-vote-yea"></i> Cast Your Vote</h1>
+        <p>Your vote will be securely recorded on the blockchain using SHA-512</p>
+    </div>
+
+    {% if voter %}
+    <div class="voter-info-bar">
+        <span><i class="fas fa-user"></i> {{ voter.name }}</span>
+        <span><i class="fas fa-id-badge"></i> {{ voter.voter_id }}</span>
+        <span class="voter-status verified"><i class="fas fa-check-circle"></i> Verified</span>
+    </div>
+    {% endif %}
+
+    {% for election in elections %}
+    <div class="election-section">
+        <div class="election-header">
+            <h2>{{ election.title }}</h2>
+            <p>{{ election.description }}</p>
+            <span class="election-badge active"><i class="fas fa-circle"></i> Active</span>
+        </div>
+
+        {% if voter and voter.has_voted.get(election.id, False) %}
+        <div class="already-voted">
+            <i class="fas fa-check-double"></i>
+            <h3>You have already voted in this election</h3>
+            <p>Each voter can only vote once. Your vote has been recorded on the blockchain.</p>
+            <a href="{{ url_for('verify') }}" class="btn btn-secondary">
+                <i class="fas fa-search"></i> Verify Your Vote
+            </a>
+        </div>
+        {% else %}
+        <form method="POST" action="{{ url_for('vote') }}" id="voteForm" onsubmit="return confirmVote()">
+            <input type="hidden" name="election_id" value="{{ election.id }}">
+
+            <div class="candidates-grid">
+                {% for candidate in election.candidates %}
+                <label class="candidate-card" for="candidate_{{ candidate.id }}">
+                    <input type="radio" name="candidate" value="{{ candidate.id }}" id="candidate_{{ candidate.id }}" required>
+                    <div class="candidate-content">
+                        <div class="candidate-symbol">{{ candidate.symbol }}</div>
+                        <h3>{{ candidate.name }}</h3>
+                        <p class="candidate-party">{{ candidate.party }}</p>
+                        <p class="candidate-manifesto">{{ candidate.manifesto }}</p>
+                        <div class="candidate-select">
+                            <i class="fas fa-check-circle"></i> Select
+                        </div>
+                    </div>
+                </label>
+                {% endfor %}
+            </div>
+
+            <div class="vote-submit-section">
+                <div class="vote-warning">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    <p><strong>Important:</strong> Once submitted, your vote cannot be changed. It will be permanently recorded on the SHA-512 blockchain.</p>
+                </div>
+                <button type="submit" class="btn btn-primary btn-lg btn-block">
+                    <i class="fas fa-paper-plane"></i> Submit Vote to Blockchain
+                </button>
+            </div>
+        </form>
+        {% endif %}
+    </div>
+    {% endfor %}
+
+    {% if not elections %}
+    <div class="no-elections">
+        <i class="fas fa-calendar-times"></i>
+        <h3>No Active Elections</h3>
+        <p>There are currently no active elections. Please check back later.</p>
+    </div>
+    {% endif %}
+</div>
+
+<script>
+function confirmVote() {
+    var selected = document.querySelector('input[name="candidate"]:checked');
+    if (!selected) {
+        alert('Please select a candidate before submitting.');
+        return false;
+    }
+    var candidateName = selected.closest('.candidate-card').querySelector('h3').textContent;
+    return confirm('Are you sure you want to vote for "' + candidateName + '"?\n\nThis action cannot be undone.');
+}
+</script>
+{% endblock %}

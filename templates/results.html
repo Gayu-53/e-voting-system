@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+{% block title %}Results - E-Voting System{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="page-header">
+        <h1><i class="fas fa-chart-bar"></i> Election Results</h1>
+        <p>Real-time results from the blockchain - transparent and verifiable</p>
+    </div>
+
+    {% for election_id, data in results_data.items() %}
+    <div class="results-section">
+        <div class="results-header">
+            <h2>{{ data.election.title }}</h2>
+            <div class="results-meta">
+                <span><i class="fas fa-vote-yea"></i> Total Votes: <strong>{{ data.total_votes }}</strong></span>
+                <span><i class="fas fa-users"></i> Registered: <strong>{{ data.total_registered }}</strong></span>
+                <span><i class="fas fa-percentage"></i> Turnout: <strong>{{ data.turnout }}%</strong></span>
+            </div>
+        </div>
+
+        <div class="turnout-section">
+            <h3>Voter Turnout</h3>
+            <div class="progress-bar-container">
+                <div class="progress-bar" style="width: {{ data.turnout }}%">
+                    {{ data.turnout }}%
+                </div>
+            </div>
+        </div>
+
+        <div class="results-grid">
+            {% for candidate in data.candidates %}
+            <div class="result-card {% if loop.first and data.total_votes > 0 %}leading{% endif %}">
+                {% if loop.first and data.total_votes > 0 %}
+                <div class="leading-badge"><i class="fas fa-crown"></i> Leading</div>
+                {% endif %}
+                <div class="result-symbol">{{ candidate.symbol }}</div>
+                <h3>{{ candidate.name }}</h3>
+                <p class="result-party">{{ candidate.party }}</p>
+                <div class="result-votes">
+                    <span class="vote-count">{{ candidate.votes }}</span>
+                    <span class="vote-label">votes</span>
+                </div>
+                <div class="result-bar-container">
+                    <div class="result-bar" style="width: {{ candidate.percentage }}%">
+                        {{ candidate.percentage }}%
+                    </div>
+                </div>
+                <div class="result-rank">#{{ loop.index }}</div>
+            </div>
+            {% endfor %}
+        </div>
+
+        {% if data.total_votes == 0 %}
+        <div class="no-votes">
+            <i class="fas fa-inbox"></i>
+            <h3>No votes cast yet</h3>
+            <p>Be the first to vote in this election!</p>
+        </div>
+        {% endif %}
+    </div>
+    {% endfor %}
+
+    <div class="results-footer">
+        <p><i class="fas fa-shield-alt"></i> Results are computed directly from the SHA-512 blockchain.</p>
+        <a href="{{ url_for('blockchain_explorer') }}" class="btn btn-secondary">
+            <i class="fas fa-cubes"></i> View Blockchain
+        </a>
+    </div>
+</div>
+{% endblock %}
